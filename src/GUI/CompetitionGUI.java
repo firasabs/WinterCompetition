@@ -1,136 +1,233 @@
-
 package GUI;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+
 public class CompetitionGUI {
+
+    private static JPanel centerPanel = new JPanel();
+    static final String IMAGE_PATH = "/Users/firasabusada/Desktop/SW/שנה ב סמ ב/תכנות מונחה עצמים מתקדם/HwJava/HW2/icons/";
+    private static JLabel backgroundLabel;
+    private static int Length;
     public static void main(String[] args) {
-        /**
-         * Frame
-         */
-
+        // Frame
         JFrame frame = new JFrame("Competition");
-        frame.setSize(1000, 700);
+        frame.setSize(new Dimension(1000, Length=700));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
         frame.setLayout(new BorderLayout());
-        /**
-         * rightPanel
-         */
+        frame.setVisible(true);
 
+        // Right Panel with JScrollPane
         JPanel rightPanel = new JPanel();
-        rightPanel.setLayout(new GridLayout(3, 1));
-        rightPanel.setPreferredSize(new Dimension(200, 700));
-        JPanel BuildArenaPanel = new JPanel();
-        JPanel CreateCompetitionPanel = new JPanel();
-        createBuildArenaPanel(BuildArenaPanel);
-        createCompetition(CreateCompetitionPanel);
-        rightPanel.add(BuildArenaPanel);
-        rightPanel.add(CreateCompetitionPanel);
-        frame.add(rightPanel, BorderLayout.EAST);
-        /**
-         * centerPanel
-         */
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.setSize(new Dimension(300, 700));
 
-        JPanel centerPanel = new JPanel();
-        centerPanel.setBackground(Color.LIGHT_GRAY);
+        JPanel buildArenaPanel = createBuildArenaPanel();
+        JPanel createCompetitionPanel = createCompetitionPanel();
+        JPanel addCompetitorPanel = createAddCompetitorPanel();
+
+        rightPanel.add(buildArenaPanel);
+        rightPanel.add(createCompetitionPanel);
+        rightPanel.add(addCompetitorPanel);
+        /**
+         * Scroll for the right panel
+         */
+        JScrollPane scrollPane = new JScrollPane(rightPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        frame.add(scrollPane, BorderLayout.EAST);
+
+        // Center Panel
+        backgroundLabel = new JLabel();
+        backgroundLabel.setBackground(Color.LIGHT_GRAY);
+        centerPanel.add(backgroundLabel, BorderLayout.CENTER);
         frame.add(centerPanel, BorderLayout.CENTER);
-
-
     }
 
-    private static void createBuildArenaPanel(JPanel panel) {
-        panel.setLayout(null);
-        panel.setPreferredSize(new Dimension(150, 160));
+    /**
+     *
+     * for positing components in panel i use GridBagLayout using the consytain for placing to avoid resizing isseus.
+     *
+     */
+    private static JPanel createBuildArenaPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("<html><font color='blue'><u>BUILD ARENA</u></font></html>"));
-        JLabel ArenaLengthLabel = new JLabel("Arena Length");
-        panel.add(ArenaLengthLabel);
-        ArenaLengthLabel.setBounds(10, 20, 100, 25);
-        JTextField ArenaLengthField = new JTextField("700");
-        ArenaLengthField.setBounds(10, 40, 120, 25);
-        panel.add(ArenaLengthField);
-        /**
-         * Snow Surface Label , combo Box
-         */
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-        JLabel SnowLabel = new JLabel("Snow Surface");
-        panel.add(SnowLabel);
-        JComboBox<String> snowSurfaceComboBox = new JComboBox<>(new String[]{"POWDER", "CRUD", "ICE"});
-        SnowLabel.setBounds(10, 60, 100, 25);
-        panel.add(snowSurfaceComboBox);
-        snowSurfaceComboBox.setBounds(10, 80, 120, 25);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(new JLabel("Arena Length"), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        JTextField Alength = new JTextField("700",10);
+        panel.add(Alength, gbc);
+        Length=Integer.parseInt(Alength.getText());
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        panel.add(new JLabel("Snow Surface"), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        JComboBox surfaceCombobox= new JComboBox<>(new String[]{"POWDER", "CRUD", "ICE"});
+        surfaceCombobox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedSurface = (String) surfaceCombobox.getSelectedItem();
+            }
+        });
+        panel.add(surfaceCombobox, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        panel.add(new JLabel("Weather Condition"), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        JComboBox<String> weatherComboBox = new JComboBox<>(new String[]{"SUNNY", "CLOUDY", "STORMY"});
         /**
-         * Wather condation label + checkBox
+         * @ActionListener to get the selection from the combobox and use it to set background image via loadimages function
          */
+        weatherComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedWeather = (String) weatherComboBox.getSelectedItem();
+                selectedWeather+= ".jpg";
+                loadImages(selectedWeather);
+            }
+        });
+        panel.add(weatherComboBox, gbc);
 
-        JLabel WatherLabel = new JLabel("Wather Condition");
-        panel.add(WatherLabel);
-        JComboBox<String> WatherComboBox = new JComboBox<>(new String[]{"SUNNY", "CLOUDY", "STORMY"});
-        WatherLabel.setBounds(10, 100, 100, 25);
-        panel.add(WatherComboBox);
-        WatherComboBox.setBounds(10, 120, 120, 25);
+        gbc.gridx = 0;
+        gbc.gridy = 6;
         JButton buildArenaButton = new JButton("Build Arena");
-        panel.add(buildArenaButton);
-        buildArenaButton.setBounds(10, 150, 120, 25);
+        buildArenaButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(buildArenaButton, gbc);
+        /**
+         * adding action listner to build arena button it also checks if the length correct.
+         */
+        buildArenaButton.addActionListener(e -> {
+            try {
+                Length = Integer.parseInt(Alength.getText());
+                if (Length < 700 || Length > 900) {
+                    JOptionPane.showMessageDialog(buildArenaButton, "Invalid length!!, length must be between 700 and 900",
+                            "ERROR", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    // Perform the build arena action
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(buildArenaButton, "Please enter a valid number",
+                        "ERROR", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return panel;
+    }
+    // Load image from icons file
+    private static void loadImages(String image) {
+        String imageName= IMAGE_PATH + image;
+        Image pic ;
+        // Get the images and set it to backgroundLabel
+            try {
+                pic = ImageIO.read(new File(imageName));
+                if(pic != null) {
+                    Image resizedImg = pic.getScaledInstance(centerPanel.getWidth(), centerPanel.getHeight(), Image.SCALE_SMOOTH);
+                    backgroundLabel.setIcon(new ImageIcon(resizedImg));
+                }
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
 
     }
-    private static void createCompetition(JPanel panel) {
-        panel.setLayout(null);
-        panel.setPreferredSize(new Dimension(150, 400));
+
+    private static JPanel createCompetitionPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("<html><font color='blue'><u>CREATE COMPETITION</u></font></html>"));
-        /**
-         * Choose Competiotn label + Check Box
-         */
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-        JLabel chosenCompetitionLabel = new JLabel("choose Competition");
-        panel.add(chosenCompetitionLabel);
-        JComboBox<String> chosenCompetitionComboBox = new JComboBox<>(new String[]{"SKI", "SnowBoard"});
-        chosenCompetitionLabel.setBounds(10, 20, 130, 15);
-        panel.add(chosenCompetitionComboBox);
-        chosenCompetitionComboBox.setBounds(10, 40, 120, 25);
-        // max Competitors
-        JLabel maxCompLabel = new JLabel("Max Competitors number");
-        maxCompLabel.setFont(new Font("Arial", Font.PLAIN, 10));
-        panel.add(maxCompLabel);
-        maxCompLabel.setBounds(10, 60, 130, 25);
-        JTextField maxCompField = new JTextField("10");
+        gbc.gridx =0;
+        gbc.gridy = 0;
+        panel.add(new JLabel("Choose Competition"), gbc);
+        gbc.gridy = 1;
+        panel.add(new JComboBox<>(new String[]{"SKI", "SnowBoard"}), gbc);
 
-        maxCompField.setBounds(10, 80, 120, 25);
-        panel.add(maxCompField);
-        /**
-         * discipline + check box
-         */
+        gbc.gridy = 2;
+        panel.add(new JLabel("Max Competitors number"), gbc);
+        gbc.gridy = 3;
+        panel.add(new JTextField("10", 10), gbc);
 
-        JLabel DisciplineLabel = new JLabel("Discipline");
-        panel.add(DisciplineLabel);
-        JComboBox<String> DisciplineComboBox = new JComboBox<>(new String[]{"Junior", "Senior", "Adult"});
-        DisciplineLabel.setBounds(10, 100, 100, 25);
-        panel.add(DisciplineComboBox);
-        DisciplineComboBox.setBounds(10, 120, 120, 25);
-        /**
-         * League label + combo box
-         */
+        gbc.gridy = 4;
+        panel.add(new JLabel("Discipline"), gbc);
+        gbc.gridy = 5;
+        panel.add(new JComboBox<>(new String[]{"Junior", "Senior", "Adult"}), gbc);
 
-        JLabel LeagueLabel = new JLabel("League");
-        panel.add(LeagueLabel);
-        JComboBox<String> LeagueComboBox = new JComboBox<>(new String[]{"SLALOM", "GIANT SLALOM", "DOWNHILL","FREESTYLE"});
-        LeagueLabel.setBounds(10, 140, 100, 25);
-        panel.add(LeagueComboBox);
-        LeagueComboBox.setBounds(10, 160, 120, 25);
-        /**
-         * Gender + checkBox
-         */
+        gbc.gridy = 6;
+        panel.add(new JLabel("League"), gbc);
+        gbc.gridy = 7;
+        panel.add(new JComboBox<>(new String[]{"SLALOM", "GIANT SLALOM", "DOWNHILL", "FREESTYLE"}), gbc);
 
-        JLabel GenderLabel = new JLabel("Gender");
-        panel.add(GenderLabel);
-        JComboBox<String> GenderComboBox = new JComboBox<>(new String[]{"Male", "Female"});
-        GenderLabel.setBounds(10, 180, 100, 25);
-        panel.add(GenderComboBox);
-        GenderComboBox.setBounds(10, 200, 120, 25);
+        gbc.gridy = 8;
+        panel.add(new JLabel("Gender"), gbc);
+        gbc.gridy = 9;
+        panel.add(new JComboBox<>(new String[]{"Male", "Female"}), gbc);
 
-        JButton CreateButton = new JButton("Create Competition");
-        panel.add(CreateButton);
-        CreateButton.setBounds(40, 240, 150, 25);
+        gbc.gridy = 10;
+        JButton createCompetitionButton = new JButton("Create Competition");
+        createCompetitionButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(createCompetitionButton, gbc);
 
+        return panel;
     }
-}
 
+    private static JPanel createAddCompetitorPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("<html><font color='blue'><u>ADD COMPETITOR</u></font></html>"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(new JLabel("Name"), gbc);
+        gbc.gridy = 1;
+        panel.add(new JTextField(10), gbc);
+
+        gbc.gridy = 2;
+        panel.add(new JLabel("Age"), gbc);
+        gbc.gridy = 3;
+        panel.add(new JTextField(10), gbc);
+
+        gbc.gridy = 4;
+        panel.add(new JLabel("Max Speed"), gbc);
+        gbc.gridy = 5;
+        panel.add(new JTextField(10), gbc);
+
+        gbc.gridy = 6;
+        panel.add(new JLabel("Acceleration"), gbc);
+        gbc.gridy = 7;
+        panel.add(new JTextField(10), gbc);
+
+        gbc.gridy = 8;
+        JButton addCompetitorButton = new JButton("Add Competitor");
+        addCompetitorButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(addCompetitorButton, gbc);
+
+        gbc.gridy = 9;
+        JButton startCompetitionButton = new JButton("Start competition");
+        startCompetitionButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(startCompetitionButton, gbc);
+
+        gbc.gridy = 10;
+        JButton showInfoButton = new JButton("Show info");
+        showInfoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(showInfoButton, gbc);
+
+        return panel;
+    }
+
+}
