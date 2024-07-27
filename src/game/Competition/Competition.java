@@ -12,7 +12,7 @@ import java.util.List;
  * all the parameters belong to one competition
  */
 public abstract class Competition {
-    private final IArena arena;
+    private  IArena arena;
     private final int maxCompetitors; // positive number
     protected List<Competitor> activeCompetitors;
     protected List<Competitor> finishedCompetitors;
@@ -20,11 +20,20 @@ public abstract class Competition {
         if (maxCompetitors <= 0) {
             throw new IllegalArgumentException("Max competitors must be a positive number.");
         }
-        this.arena = arena;
+        setArena(arena);
         this.maxCompetitors = maxCompetitors;
         this.activeCompetitors = new ArrayList<>();
         this.finishedCompetitors = new ArrayList<>();
     }
+    public void setArena(IArena arena){
+        this.arena = arena;
+    }
+
+    public IArena getArena(){
+        return arena;
+    }
+
+
 
     public abstract boolean isValidCompetitor(Competitor competitor);
 
@@ -37,9 +46,6 @@ public abstract class Competition {
         }
             competitor.initRace();
             activeCompetitors.add(competitor);
-        }
-        public IArena getArena(){
-        return arena;
         }
     /**
      * This method runs the active competitors that haven't finished the race yet.
