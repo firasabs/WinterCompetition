@@ -10,6 +10,6 @@ public class Skier extends WinterSportsman{
         super(Name, Age, gend, acceleration,maxSpeed, dis);
     }
     public String toString(){
-        return "Skier"+" "+super.toString();
+        return "Skier" + " " + super.toString();
     }
 }

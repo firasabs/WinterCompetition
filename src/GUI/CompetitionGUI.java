@@ -20,8 +20,12 @@ public class CompetitionGUI {
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setSize(new Dimension(250, 700));
         BuildArenaPanel buildArenaPanel = new BuildArenaPanel();
-        CreateCompetitionPanel createCompetitionPanel = new CreateCompetitionPanel(buildArenaPanel.getArena());
-        AddCompetitorPanel addCompetitorPanel = new AddCompetitorPanel();
+        CreateCompetitionPanel createCompetitionPanel = new CreateCompetitionPanel();
+        /**
+         * adding Observer
+         */
+        buildArenaPanel.addObserver(createCompetitionPanel);
+        AddCompetitorPanel addCompetitorPanel = new AddCompetitorPanel(createCompetitionPanel);
         // adding panels to right panel
         rightPanel.add(buildArenaPanel.getPanel());
         rightPanel.add(createCompetitionPanel.getPanel());
