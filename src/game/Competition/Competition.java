@@ -3,7 +3,12 @@
  * @id 208339218, 325104149
  */
 package game.Competition;
+import Observe.Observable;
+import Observe.Observer;
 import game.arena.IArena;
+import game.enums.Discipline;
+import game.enums.Gender;
+import utilities.ValidationUtils;
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -11,16 +16,17 @@ import java.util.List;
  * @Param arena ,maxCompetitor, activeCompetitors, finishedCompetitor.
  * all the parameters belong to one competition
  */
-public abstract class Competition {
+public abstract class Competition implements Observer {
     private  IArena arena;
     private final int maxCompetitors; // positive number
     protected List<Competitor> activeCompetitors;
     protected List<Competitor> finishedCompetitors;
+    private double X=0;
     public Competition(IArena arena, int maxCompetitors) {
         if (maxCompetitors <= 0) {
             throw new IllegalArgumentException("Max competitors must be a positive number.");
         }
-        setArena(arena);
+        this.arena=arena;
         this.maxCompetitors = maxCompetitors;
         this.activeCompetitors = new ArrayList<>();
         this.finishedCompetitors = new ArrayList<>();
@@ -33,69 +39,61 @@ public abstract class Competition {
         return arena;
     }
 
-
-
-    public abstract boolean isValidCompetitor(Competitor competitor);
+    protected abstract boolean isValidCompetitor(Competitor competitor);
 
     public void addCompetitor(Competitor competitor) {
+        ValidationUtils.assertNotNull(competitor);
         if (activeCompetitors.size() >= maxCompetitors) {
-            throw new IllegalStateException(arena +" is full max = " + maxCompetitors );
+            throw new IllegalStateException(arena + " is full max = " + maxCompetitors);
         }
         if (!isValidCompetitor(competitor)) {
-            throw new IllegalArgumentException("Invalid competitor " + competitor.toString());
-        }
-            competitor.initRace();
+            throw new IllegalArgumentException("Invalid competitor " + competitor);
+        } else {
+            competitor.initRace(X);
+            X+=65;
             activeCompetitors.add(competitor);
         }
+    }
     /**
      * This method runs the active competitors that haven't finished the race yet.
-     * use for with @parm i traverse activeCompetitor array list
+     * @parm i traverse activeCompetitor array list
      * while competitor not finished the race he will move on step using @func move()
      * when he pass the finish line he will be added to finishedCompetitior list and get removed from active list
      */
     public void playTurn() {
-        List<Competitor> active = getActiveCompetitors();
-        List<Competitor> finish = getFinishedCompetitors();
-        double Friction = arena.getFriction();
-            for(int i=0; i < active.size(); i++){
-                Competitor competitor = active.get(i);
-                if (arena.isFinished(competitor)) {
-                    finish.add(competitor);
-                    active.remove(competitor);
-                } else {
-                    competitor.move(Friction);
-                }
-            }
-
-        setactiveCompetitors(active);
-        setFinishedCompetitors(finish);
+        for (Competitor i : this.activeCompetitors) {
+            new Thread((Runnable)i).start();
+        }
     }
+
     /**
-     * @meth hasActiveCompetitiors This method runs the active competitors that haven't finished the race yet.
+     * @method hasActiveCompetitiors This method runs the active competitors that haven't finished the race yet.
      */
     public boolean hasActiveCompetitors() {
         return !activeCompetitors.isEmpty();
     }
 
-
-    public int getMaxCompetitors() {
-        return maxCompetitors;
-    }
-
-    public List<Competitor> getActiveCompetitors() {
+    public ArrayList<Competitor> getActiveCompetitors() {
         return new ArrayList<>(activeCompetitors);
     }
 
-    public List<Competitor> getFinishedCompetitors() {
+    public ArrayList<Competitor> getFinishedCompetitors() {
 
-        return finishedCompetitors;
+        return new ArrayList<>(finishedCompetitors);
     }
-    public void setactiveCompetitors(List<Competitor> competitors) {
-        this.activeCompetitors = competitors;
+    @Override
+    public void update(Observable o, Object arg) {
+        if(o instanceof Competitor) {
+            for (Competitor competitor : activeCompetitors) {
+                if (arena.isFinished(competitor)) {
+                    finishedCompetitors.add(competitor);
+                    activeCompetitors.remove(competitor);
+                }
+            }
+        }
     }
-    public void setFinishedCompetitors(List<Competitor> competitors) {
-        this.finishedCompetitors = competitors;
-    }
+    public abstract Gender getGender();
+    public abstract Discipline getDiscipline();
 }
 
 
