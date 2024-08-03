@@ -1,5 +1,6 @@
 package GUI;
-import GUI.Observe.ArenaObserver;
+import Observe.Observable;
+import Observe.Observer;
 import game.Competition.*;
 import game.arena.IArena;
 import game.enums.Discipline;
@@ -10,16 +11,22 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-public class CreateCompetitionPanel implements ArenaObserver {
+import java.util.List;
+public class CreateCompetitionPanel implements Observable, Observer {
     private JPanel panel;
     private Competition competition;
     private IArena arena;
     private String competitionType;
     private Discipline selectedDiscipline;
     private Gender selectedGender;
-
+    private League SelectedLeague;
+    private String ClassName;
+    private boolean isArenaBuilt = false;
+    private boolean isCompetitionCreated = false;
+    private List<Observer> observers = new ArrayList<>();
     /**
      * @code CreateCompetitionPanel for creating competition as the user choose
      * in this  code the instance of competition will be created by using dynamic class loading
@@ -87,18 +94,20 @@ public class CreateCompetitionPanel implements ArenaObserver {
                                 "ERROR", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    competitionType = chooseCompetitionCombo.getSelectedItem().toString();
+                    competitionType = (String) chooseCompetitionCombo.getSelectedItem();
                     selectedDiscipline = (Discipline) DisciplineComboBox.getSelectedItem();
-                    League selectedLeague = (League) LeagueComboBox.getSelectedItem();
+                    SelectedLeague = (League) LeagueComboBox.getSelectedItem();
                     selectedGender = (Gender) GenderComboBox.getSelectedItem();
-                    String ClassName = competitionClassType.get(competitionType);
+                    ClassName = competitionClassType.get(competitionType);
                     if(ClassName != null){
                         try{
                             Class<?> competitionClass = Class.forName(ClassName);
                             Constructor<?> constructor = competitionClass.getConstructor(IArena.class, int.class, Discipline.class, League.class, Gender.class);
-                            competition = (Competition) constructor.newInstance(arena, maxCompetitors, selectedDiscipline, selectedLeague, selectedGender);
-                    JOptionPane.showMessageDialog(createCompetitionButton, "competition have been created!",
+                            competition = (Competition) constructor.newInstance(arena, maxCompetitors, selectedDiscipline, SelectedLeague, selectedGender);
+                            JOptionPane.showMessageDialog(createCompetitionButton, "competition have been created!",
                             "SUCCESS", JOptionPane.INFORMATION_MESSAGE);
+                            isCompetitionCreated = true;
+                            notifyObservers();
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -115,30 +124,36 @@ public class CreateCompetitionPanel implements ArenaObserver {
         }
     }
         });
-
     }
-
-    public Competition getCompetition() {
-        return competition;
-
-    }
-
-    public String getCompetitionType(){
-        return competitionType;
-    }
-    public Discipline getSelectedDiscipline(){
-        return selectedDiscipline;
-    }
-    public  Gender getSelectedGender(){
-        return selectedGender;
-    }
-
     public JPanel getPanel(){
         return panel;
     }
+    @Override
+    public void update(Observable obs, Object arg) {
+        this.arena= (IArena) arg;
+        isArenaBuilt=true;
+        isCompetitionCreated= true;
+        }
+    /**
+     *
+     * @param observer as AddCompetitor Panel, will get notified after Creating competition
+     */
+    @Override
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
 
     @Override
-    public void updateArena(IArena arena) {
-            this.arena = arena;
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (Observer observer : observers) {
+            observer.update(this, competition);
     }
 }
+}
+
+
