@@ -18,5 +18,5 @@ public interface IMobileEntity {
       * getLoction function from Entity interface
       *
       */
-     Point getLoction();
+     Point getLocation();
 }
