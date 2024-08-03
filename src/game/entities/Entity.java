@@ -3,25 +3,32 @@
  * @id 208339218, 325104149
  */
 package game.entities;
+import Observe.Observable;
 import utilities.Point;
+import utilities.ValidationUtils;
 
 /**
  * The {@code entities} class represent static entities.
 
  */
-public abstract class Entity {
-    protected Point location;
+public abstract class Entity implements Observable {
+    private Point location;
 
-    Entity(){
-        this.location=new Point(0,0);
+    public Entity(){
+        this(new Point());
     }
-    Entity(Point location){
+    public Entity(Point location){
         this.location = location;
     }
     public Point getLocation() {
         return location;
     }
-    public String toString(){
-        return "location: "+super.toString();
+    /**
+     * @param location the new location of the entity
+     * @throws IllegalArgumentException if argument is null
+     */
+    public void setLocation(Point location) {
+        ValidationUtils.assertNotNull(location);
+        this.location = location;
     }
 }
