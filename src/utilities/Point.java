@@ -5,6 +5,11 @@ package utilities;
  * can be any number from 0 to 800.
  */
 public class Point {
+    public static final int MAX_X = 1000000;
+    public static final int MIN_X = 0;
+    public static final int MAX_Y = 800;
+    public static final int MIN_Y = 0;
+
     private double x;
     private double y;
     /**
@@ -15,16 +20,21 @@ public class Point {
      * @throws IllegalArgumentException if x or y are out of the specified ranges.
      */
     public Point() {
-        setX(0);
-        setY(0);
+    this(0,0);
     }
     public Point(double x, double y) {
         setX(x);
         setY(y);
     }
-    public Point(Point other) {
-            setY(other.getY());
-            setX(other.getX());
+    /**
+     * Copy Ctor
+     * @param other other instance
+     * @throws IllegalArgumentException if other instance is null
+     */
+    public Point(Point other) throws IllegalArgumentException {
+        ValidationUtils.assertNotNull(other);
+        this.setX(other.x);
+        this.setY(other.y);
     }
 
     public double getX() {
@@ -33,35 +43,41 @@ public class Point {
     public double getY() {
         return y;
     }
-    public void setX(double x) throws IllegalArgumentException {
-        if(0<=x && x<1000000){
-            this.x = x;
-        }else throw new IllegalArgumentException("x must be between 0 and 1000000");
+    // Setters
+
+    /**
+     * @param x the x position of the point
+     * @throws IllegalArgumentException if x is out of range [{@value MIN_X},{@value MAX_X}]
+     */
+    private void setX(double x) throws IllegalArgumentException {
+        ValidationUtils.assertInRange(x,MIN_X,MAX_X);
+        this.x = x;
     }
-    public void setY(double y)throws IllegalArgumentException {
-        if(0<=y && y<800){
-            this.y = y;
-        }else throw new IllegalArgumentException("y must be between 0 and 800");
+    /**
+     * @param y the y position of the point
+     * @throws IllegalArgumentException if y is out of range [{@value MIN_Y},{@value MAX_Y}]
+     */
+    private void setY(double y) throws IllegalArgumentException {
+        ValidationUtils.assertInRange(y,MIN_Y,MAX_Y);
+        this.y = y;
     }
     /**
      * returns a string representation of the point.
      *
      * @return a string representation of the point.
      */
-    public String toString (){
-        return " (" + x + "," + y + ")";
+    @Override
+    public String toString() {
+        return "(" + this.x + "," + this.y + ")";
     }
     /**
-     * returns a boolean status of comparing to points.
-     *
-     * @return boolean expression if two points are equal.
+     * offset from the current point
+     * @param xOffset offset at the x axis
+     * @param yOffset offset at the y axis
+     * @return a new clone of the current point with an x and y offset
      */
-    public boolean equals(Point other) {
-        boolean ans = false;
-        if (other != null){
-            ans = (x==other.x && y==other.y);
-        }
-        return ans;
+    public Point offset(double xOffset, double yOffset){
+        return new Point(this.x+xOffset, this.y+yOffset);
     }
 }
 

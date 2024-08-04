@@ -1,5 +1,6 @@
 package game.entities;
 
+import game.Competition.Competition;
 import utilities.Point;
 
 /**
@@ -18,5 +19,6 @@ public interface IMobileEntity {
       * getLoction function from Entity interface
       *
       */
-     Point getLoction();
+     Point getLocation();
+     void setCompetition(Competition competition);
 }

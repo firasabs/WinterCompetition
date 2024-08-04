@@ -1,47 +1,83 @@
 package game.entities;
+import Observe.Observer;
+import game.Competition.Competition;
 import utilities.Point;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The {@code MobileEntity} class represent mobile entity.
  *
  */
-public abstract class MobileEntity extends Entity implements IMobileEntity {
-    double maxSpeed;
-    double acceleration;
-    double speed;
+public class MobileEntity extends Entity implements IMobileEntity {
+    private final double maxSpeed;
+    private final double acceleration;
+    private double speed;
+    private Competition competition;
+    private List<Observer> observers = new ArrayList<>();
 
-    public MobileEntity(double acceleration,double maxSpeed) {
-        super();
+    public MobileEntity(double initialSpeed, double acceleration, double maxSpeed) {
+        super(new Point());
+        this.setSpeed(initialSpeed);
         this.acceleration = acceleration;
         this.maxSpeed = maxSpeed;
-        speed = 0;
     }
 
+    /**
+     * @method move, that method moves the sportsman on X-axis
+     * first the func calc the current speed (friction * accelerationAFTERbonus)
+     * and it moves the sportman by adding the current speed to the last location
+     * finaly it updates the location of the object.
+     */
     @Override
-    public abstract void move(double friction);
-
-    public Point getLoction() {
-        return location;
+    public void move(double friction) {
+        this.setSpeed(Math.min(this.maxSpeed, this.speed + this.getAcceleration() * (1 - friction)));
+        Point newLocation = this.getLocation().offset(this.getLocation().getX(), this.speed);
+        double Y = Math.max(0, Math.min(newLocation.getY(), 800));
+        double X = this.getLocation().getX();
+        this.setLocation(new Point(X,Y));
+        notifyObservers();
     }
-    //public abstract void setLocation(double x, double y);
-
-    public double getMaxSpeed() {
+    public double getSpeed() {
+        return speed;
+    }
+    public double getMaxSpeed(){
         return maxSpeed;
     }
+
+
+    /**
+     * runs update function for other observers
+     */
+    @Override
+    public void notifyObservers(){
+        for (Observer o : observers){
+            o.update(this,this);
+        }
+    }
+    @Override
+    public void addObserver(Observer o) {
+        observers.add(o);
+    }
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+
 
     public double getAcceleration() {
         return acceleration;
     }
 
-    public double getSpeed() {
-        return speed;
-    }
-
-    protected void setSpeed(double speed) {
+    public void setSpeed(double speed) {
         this.speed = speed;
     }
-
-
-    public String toString() {
-        return "maxSpeed: " + maxSpeed + ", acceleration: " + acceleration + ", speed: " + speed;
+    public Competition getCompetition(){
+        return competition;
     }
+    public void setCompetition(Competition competition) {
+        this.competition = competition;
+    }
+
 }
+

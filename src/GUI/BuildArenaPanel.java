@@ -1,10 +1,12 @@
 package GUI;
-import GUI.Observe.ArenaObserver;
-import GUI.Observe.ArenaSubject;
+import Observe.Observer;
+import Observe.Observable;
 import game.arena.IArena;
 import game.arena.WinterArena;
 import game.enums.SnowSurface;
 import game.enums.WeatherCondition;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,13 +15,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.imageio.ImageIO;
-import static GUI.CompetitionGUI.centerPanel;
-public class BuildArenaPanel implements ArenaSubject {
+
+public class BuildArenaPanel implements Observable{
     private JPanel panel;
     private static int length = 700;
     private IArena Arena;
-    private List<ArenaObserver> observers;
+    private List<Observer> observers;
+    private boolean builtArena = false;
+    private static WeatherCondition selectedWeather;
     /**
      *
      * for positing components in panel i use GridBagLayout using the constain for placing to avoid resizing issues.
@@ -79,15 +82,11 @@ public class BuildArenaPanel implements ArenaSubject {
                                 "ERROR", JOptionPane.ERROR_MESSAGE);
                     } else {
                         SnowSurface selectedSurface = (SnowSurface) surfaceComboBox.getSelectedItem();
-                        WeatherCondition selectedWeather = (WeatherCondition) weatherComboBox.getSelectedItem();
+                        selectedWeather = (WeatherCondition) weatherComboBox.getSelectedItem();
 
                         // Create the arena and set it to the competition
                         Arena = new WinterArena(length, selectedSurface, selectedWeather);
                         notifyObservers();
-
-                        // Load background image based on weather condition
-                        final String imageName = selectedWeather + ".jpg";
-                        loadAndSetBackgroundImage(imageName);
 
                         JOptionPane.showMessageDialog(buildArenaButton, "Arena built successfully!",
                                 "SUCCESS", JOptionPane.INFORMATION_MESSAGE);
@@ -99,6 +98,9 @@ public class BuildArenaPanel implements ArenaSubject {
             }
         });
     }
+    public static WeatherCondition getSelectedWeather() {
+        return selectedWeather;
+    }
 
     public JPanel getPanel() {
         return panel;
@@ -106,36 +108,37 @@ public class BuildArenaPanel implements ArenaSubject {
     public IArena getArena() {
         return Arena;
     }
-
+    public static int getLength() {
+        return length;
+    }
     private void loadAndSetBackgroundImage(String imageName) {
-        String imagePath = CompetitionGUI.IMAGE_PATH+imageName;
+        String imagePath = CompetitionGUI.IMAGE_PATH + imageName;
         try {
             Image img = ImageIO.read(new File(imagePath));
-            Image resizedImg = img.getScaledInstance(centerPanel.getWidth(), centerPanel.getHeight(), Image.SCALE_SMOOTH);
-            ImageIcon icon = new ImageIcon(resizedImg);
+            ImageIcon icon = new ImageIcon(img);
             CompetitionGUI.setBackgroundImage(icon);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public static int getLength() {
-        return length;
-    }
 
-    @Override
-    public void addObserver(ArenaObserver observer) {
+
+        @Override
+    public void addObserver(Observer observer) {
         observers.add(observer);
     }
 
     @Override
-    public void removeObserver(ArenaObserver observer) {
+    public void removeObserver(Observer observer) {
         observers.remove(observer);
     }
 
     @Override
     public void notifyObservers() {
-        for (ArenaObserver observer : observers) {
-            observer.updateArena(Arena);
+        builtArena = true;
+        for(Observer observer : observers) {
+            observer.update(this,Arena);
         }
     }
+
 }

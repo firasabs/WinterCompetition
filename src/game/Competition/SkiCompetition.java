@@ -9,21 +9,15 @@ import game.enums.League;
  * {@code SkiCompetition} class represents competition type
  */
 public class SkiCompetition extends WinterCompetition {
-    public SkiCompetition(IArena arena, int maxCopetitiors, Discipline discipline, League league, Gender gender){
-        super((WinterArena) arena,maxCopetitiors,discipline,league,gender);
+    public SkiCompetition(IArena arena, int maxCompetitiors, Discipline discipline, League league, Gender gender){
+        super(arena, maxCompetitiors,discipline,league,gender);
     }
     /**
      * @func isVaildCompetitor checks if the competitior can play  this competiton type
      */
     @Override
     public boolean isValidCompetitor(Competitor competitor){
-        if(competitor instanceof Skier){
-            Skier skier = (Skier) competitor;
-            return this.league.isInLeague(skier.getAge()) && this.gender == skier.getGender();
-        }
-        return false;
+        return competitor instanceof Skier && super.isValidCompetitor(competitor);
     }
-
-
 
 }

@@ -29,7 +29,6 @@ public class WinterArena implements IArena {
     public SnowSurface getSurface() {
         return surface;
     }
-
     public void setCondition(WeatherCondition cond) {
         this.condition = cond;
     }
@@ -45,7 +44,7 @@ public class WinterArena implements IArena {
      */
     @Override
     public boolean isFinished(IMobileEntity me) {
-        return me.getLoction().getX() >= length;
+        return me.getLocation().getY() >= this.length;
     }
     @Override
     public double getLength() {

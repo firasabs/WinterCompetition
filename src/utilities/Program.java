@@ -1,6 +1,7 @@
 /**
  *
  */
+/*
 package utilities;
 import game.GameEngine;
 import game.arena.WinterArena;
@@ -14,6 +15,7 @@ import game.enums.*;
  * @author Itzhak Eretz Kdosha
  * Main class(run demo)
  */
+	/*
 public class Program {
 
 	public static void main(String[] args) {
@@ -56,5 +58,5 @@ public class Program {
 		GameEngine.getInstance().startRace(competition);
 	}
 
-}
+}*/
 
