@@ -37,7 +37,7 @@ public class CreateCompetitionPanel implements Observable, Observer {
          */
          final Map<String, String> competitionClassType = new HashMap<String, String> ();
             competitionClassType.put("SKI", "game.Competition.SkiCompetition");
-            competitionClassType.put("SnowBoard", "game.Competition.SnowboardCompetition");
+            competitionClassType.put("Snowboard", "game.Competition.SnowboardCompetition");
 
         panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -50,7 +50,7 @@ public class CreateCompetitionPanel implements Observable, Observer {
         gbc.gridy = 0;
         panel.add(new JLabel("Choose Competition"), gbc);
         gbc.gridy = 1;
-        JComboBox<String> chooseCompetitionCombo  =  new JComboBox<>(new String[]{"SKI", "SnowBoard"});
+        JComboBox<String> chooseCompetitionCombo  =  new JComboBox<>(new String[]{"SKI", "Snowboard"});
         panel.add(chooseCompetitionCombo, gbc);
 
         gbc.gridy = 2;
