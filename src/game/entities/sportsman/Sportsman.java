@@ -42,7 +42,8 @@ public class Sportsman extends MobileEntity {
     }
     public Gender getGender() {
         return gender;
-    }/*
+    }
+    /*
     public void setName(String name) {
         if(name!=null && (!name.equals(" "))){
             this.name = name;

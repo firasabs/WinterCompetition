@@ -1,13 +1,9 @@
 package game.entities.sportsman;
-import GUI.CreateCompetitionPanel;
 import Observe.Observer;
 import game.Competition.Competitor;
-import game.arena.WinterArena;
 import game.enums.Discipline;
 import game.enums.Gender;
-import game.enums.League;
 import utilities.Point;
-
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
