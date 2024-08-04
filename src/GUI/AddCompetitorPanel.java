@@ -4,6 +4,8 @@ import Observe.Observer;
 import game.Competition.Competition;
 import game.Competition.Competitor;
 import game.GameEngine;
+import game.entities.MobileEntity;
+import game.entities.sportsman.Sportsman;
 import game.entities.sportsman.WinterSportsman;
 import game.enums.Discipline;
 import game.enums.Gender;
@@ -14,6 +16,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +32,7 @@ public class AddCompetitorPanel implements Observer {
     private int competitorsNumber = 0;
     private boolean isArenaBuilt = false;
     private boolean isCompetitionCreated = false;
+    private ArrayList<Competitor> JoinedCompetitors = new ArrayList<>();
     public AddCompetitorPanel() {
         /**
          * for dynamic class loading i will use hashMap for mapping the constructors that i will use for creating
@@ -36,7 +40,7 @@ public class AddCompetitorPanel implements Observer {
          */
         final Map<String, String> competitorClassType= new HashMap<String, String>();
         competitorClassType.put("SkiCompetition","game.entities.sportsman.Skier");
-        competitorClassType.put("SnowboardCompetiotion", "game.entities.sportsman.Snowboarder");
+        competitorClassType.put("SnowboardCompetition", "game.entities.sportsman.Snowboarder");
         panel = new JPanel(new GridBagLayout());
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createTitledBorder("<html><font color='blue'><u>ADD COMPETITOR</u></font></html>"));
@@ -82,22 +86,24 @@ public class AddCompetitorPanel implements Observer {
                         return;
                     }
                     String ClassName = competitorClassType.get(currentCompetition.getClass().getSimpleName());
+                    System.out.println(currentCompetition.getClass().getSimpleName());
+                    System.out.println("className:" +  ClassName);
                 try {
                     String Name = name.getText();
                     ValidationUtils.assertNotNullOrEmptyString(Name);
                     double Age = Double.parseDouble(age.getText());
                     double MaxSpeed = Double.parseDouble(maxSpeed.getText());
                     double Acceleration = Double.parseDouble(acceleration.getText());
-
                     Class<?> competitiorClass = Class.forName(ClassName);
                     Constructor<?> constructor = competitiorClass.getConstructor(String.class, double.class, Gender.class, double.class, double.class, Discipline.class);
                     competitor = (Competitor) constructor.newInstance(Name, Age, currentCompetition.getGender(), Acceleration, MaxSpeed, currentCompetition.getDiscipline());
                     currentCompetition.addCompetitor(competitor);
+                    JoinedCompetitors.add(competitor);
                     competitorsNumber++;
                     //adding AddCompetitorPanel to Observable Competitor to update the icons of the competitors based on there move
                     JOptionPane.showMessageDialog(addCompetitorButton, "competitor "+ competitorsNumber +" have been added",
                             "SUCCESS", JOptionPane.INFORMATION_MESSAGE);
-                    CompetitionGUI.addCompetitorIcon(competitor);
+                    CompetitionGUI.addCompetitorIcon((MobileEntity) competitor, competitor.getIcon());
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(addCompetitorButton, "  Competitor dosent fit the competition" + ex.getMessage(),
@@ -122,7 +128,7 @@ public class AddCompetitorPanel implements Observer {
                 GameEngine.getInstance().startRace(currentCompetition);
                 new Thread(() -> {
                     for (Competitor competitor : currentCompetition.getActiveCompetitors()) {
-                        new Thread((Runnable) competitor).start();
+                        new Thread(competitor).start();
                     }
                 }).start();
             }
@@ -135,9 +141,10 @@ public class AddCompetitorPanel implements Observer {
         showInfoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(showInfoButton, "Name :" + name.getText() + "\nage: " + age.getText() +
+               /* JOptionPane.showMessageDialog(showInfoButton, "Name :" + name.getText() + "\nage: " + age.getText() +
                                 "\nmaxSpeed: " + maxSpeed.getText()+ "\naccelration : " + acceleration.getText(),
-                        "Info", JOptionPane.INFORMATION_MESSAGE);
+                        "Info", JOptionPane.INFORMATION_MESSAGE);*/
+                showCompetitorInfo();
             }
         });
     }
@@ -152,6 +159,31 @@ public class AddCompetitorPanel implements Observer {
              isCompetitionCreated = true;
             this.currentCompetition = (Competition) arg;
         }
+    }
+    private void showCompetitorInfo() {
+        JFrame infoFrame = new JFrame("Competitors Info");
+        infoFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        infoFrame.setSize(600, 400);
+
+        String[] columnNames = {"Name", "Speed", "Max Speed", "Location", "Finished"};
+        Object[][] data = new Object[JoinedCompetitors.size()][5];
+
+        int i = 0;
+        for (Competitor competitor : JoinedCompetitors) {
+            Sportsman sportsman = (Sportsman) competitor;
+            data[i][0] = sportsman.getName();
+            data[i][1] = sportsman.getSpeed();
+            data[i][2] = sportsman.getMaxSpeed();
+            data[i][3] = sportsman.getLocation().toString();
+            data[i][4] = currentCompetition.getArena().isFinished(sportsman);
+            i++;
+        }
+
+        JTable table = new JTable(data, columnNames);
+        JScrollPane scrollPane = new JScrollPane(table);
+        infoFrame.add(scrollPane, BorderLayout.CENTER);
+
+        infoFrame.setVisible(true);
     }
 
 }
