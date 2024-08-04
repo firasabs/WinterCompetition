@@ -37,6 +37,12 @@ public class MobileEntity extends Entity implements IMobileEntity {
         this.setLocation(newLocation);
         notifyObservers();
     }
+    public double getSpeed() {
+        return speed;
+    }
+    public double getMaxSpeed(){
+        return maxSpeed;
+    }
 
 
     /**
@@ -45,7 +51,7 @@ public class MobileEntity extends Entity implements IMobileEntity {
     @Override
     public void notifyObservers(){
         for (Observer o : observers){
-            o.update(this,this.getLocation());
+            o.update(this,this);
         }
     }
     @Override
